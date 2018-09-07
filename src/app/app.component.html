@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+</head>
+<body>
+<header>
+    <div class="container">
+        <div id="branding">
+            <h1><span class="highlight">Ontology</span> Manager</h1>
+        </div>
+        <nav>
+            <ul>
+                <li class="current"><a href="/src/index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<section id="showcase">
+    <graph [nodes]="nodes" [links]="links" *ngIf="counter"></graph>
+</section>
+
+<section id="newsletter">
+    <div class="container">
+        <h1>Choose Ontology To View</h1>
+        <form>
+            <select [(ngModel)]="ontologyDropdown" name="ontologyDropdown" id="ontologyDropdown" class="form-control"  (change)="getDomainDatabase($event.target.value)">
+                <option value="All">Complete Ontology</option>
+                <option value="Finance">Finance</option>
+                <option value="Politic">Politic</option>
+            </select>
+        </form>
+    </div>
+</section>
+
+<section id="boxes">
+    <div class="container" *ngIf="ontologyDropdown!='All'">
+        <section id="main">
+            <div class="container">
+                <article id="main-col">
+                        <h3>Add Node</h3>
+                        <ul id="services">
+                            <li>
+                                <form  disabled="true" method="post" id="addNodeForm" [(ngModel)]="addNodeForm" name="addNodeForm" ngDefaultControl>
+                                    <div class="container">
+                                        <label><b>Label</b></label>
+                                        <input type="text" placeholder="Label" class="form-control form-control-sm" id="nodeLabeltxt"
+                                               [(ngModel)]="nodeLabel" name="email"
+                                               required readonly>
+                                        <br>
+                                        <table>
+                                            <thead>
+                                            <tr>
+                                                <th>Properties
+                                                    <a (click)="onEditCloseItems()">
+                                                        <i class="mdi mdi-{{isEditItems ? 'close' : 'pencil'}} mdi-18px"></i>
+                                                    </a>
+                                                </th>
+                                            </tr>
+                                            </thead>
+
+                                            <tbody *ngIf="!isEditItems">
+                                            <tr *ngFor="let field of fieldArray; let i = index">
+                                                <td *ngIf="field?.name">
+                                                    <i (click)="deleteFieldValue(i)" class="mdi mdi-close mdi-10px"></i>
+                                                    {{field.name}}
+                                                </td>
+                                            </tr>
+                                            </tbody>
+
+                                            <tbody *ngIf="isEditItems">
+
+                                            <tr *ngFor="let field of fieldArray; let i = index">
+                                                <td>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <div (click)="deleteFieldValue(i)" class="input-group-text-sm">
+                                                                <i class="mdi mdi-close mdi-18px" style="color:red"></i></div>
+                                                        </div>
+                                                        <input [(ngModel)]="field.name" class="form-control form-control-sm" type="text"
+                                                               name="{{field.name}}" placeholder="Name"
+                                                               [ngModelOptions]="{standalone: true}">
+                                                        <input [(ngModel)]="field.value" class="form-control form-control-sm" type="text"
+                                                               name="{{field.value}}" placeholder="Value"
+                                                               [ngModelOptions]="{standalone: true}">
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td align="right">
+                                                    <button *ngIf="fieldArray.length <= 200"
+                                                            class="btn btn-success btn-sm"
+                                                            type="button" (click)="addFieldValue()"
+                                                            style="">
+                                                        <i class="mdi mdi-plus mdi-10px"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <br>
+                                        <button (click)="addNodeToDB()" class="btn btn-primary btn-sm" type="button"><i class="mdi mdi-plus mdi-10px"></i>
+                                            Add
+                                        </button>
+                                        <button (click)="addNodeCancel()" class="btn btn-danger btn-sm" style="float:right" type="button"><i class="mdi mdi-close mdi-10px"></i>
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </form>
+                            </li>
+                        </ul>
+                </article>
+            </div>
+        </section>
+        <!--</didv>-->
+        <div class="box">
+            <article id="main-col" style="width: 100%; margin: 1%">
+                    <h3>Add Relationship</h3>
+                    <ul id="services" style="width:100%">
+                        <li>
+                            <form style="width: 100%" id="addRelationshipForm"
+                                  method="post" [(ngModel)]="addRelForm" name="addRelForm" id="addRelForm" ngDefaultControl>
+                                <div class="container" style="width: 100%">
+                                    <label><b>Source</b></label>
+                                    <select [(ngModel)]="relSourceDropdown" class="form-control form-control-sm" name="Source" style="float:right">
+                                        <option value="select">--Select--</option>
+                                        <option *ngFor="let source of relationshipSourceDropdown"
+                                                [value]="source.nodeName">{{source.nodeName}}
+                                        </option>
+                                    </select>
+                                    <div style="padding: 8px"></div>
+                                    <br><br>
+                                    <label><b>Type</b></label>
+                                    <input [(ngModel)]="relType" type="text" class="form-control form-control-sm" placeholder="Type" id="relType" name="Type"
+                                           required>
+                                    <br>
+                                    <div style="height: 20px"></div>
+                                    <table id="relTable">
+                                        <thead>
+                                        <tr>
+                                            <th>Properties
+                                                <a (click)="onEditCloseItemsRel()">
+                                                    <i class="mdi mdi-{{isEditItemsRel ? 'close' : 'pencil'}} mdi-18px"></i>
+                                                </a>
+                                            </th>
+                                        </tr>
+                                        </thead>
+
+                                        <tbody *ngIf="!isEditItemsRel">
+                                        <tr *ngFor="let field of fieldArrayRel; let j = index">
+                                            <td *ngIf="field?.name">
+                                                <i (click)="deleteFieldValueRel(j)" class="mdi mdi-close mdi-10px"></i>
+                                                {{field.name}}
+                                            </td>
+                                        </tr>
+                                        </tbody>
+
+                                        <tbody *ngIf="isEditItemsRel">
+
+
+                                        <tr *ngFor="let field of fieldArrayRel; let j = index">
+                                            <td>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div (click)="deleteFieldValueRel(j)" class="input-group-text-sm">
+                                                            <i class="mdi mdi-close mdi-18px" style="color:red"></i></div>
+                                                    </div>
+                                                    <input [(ngModel)]="field.name" class="form-control form-control-sm" type="text"
+                                                           name="{{field.name}}" placeholder="Name"
+                                                           [ngModelOptions]="{standalone: true}">
+                                                    <input [(ngModel)]="field.value" class="form-control form-control-sm" type="text"
+                                                           name="{{field.value}}" placeholder="Value"
+                                                           [ngModelOptions]="{standalone: true}">
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td align="right">
+                                                <button *ngIf="fieldArrayRel.length <= 200"
+                                                        class="btn btn-success btn-sm"
+                                                        type="button" (click)="addFieldValueRel()"
+                                                        style="">
+                                                    <i class="mdi mdi-plus mdi-10px"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                    <div style="padding: 8px"></div>
+                                    <br>
+                                    <label><b>Direction</b></label>
+                                    <select [(ngModel)]="relDirectionDropdown" class="form-control form-control-sm" name="Direction" style="float:right">
+                                        <option value="nodirection">-</option>
+                                        <option value="in">in</option>
+                                        <option value="out">out</option>
+                                    </select>
+
+                                    <div style="padding: 4px"></div>
+                                    <br>
+                                    <label><b>Destination</b></label>
+                                    <select [(ngModel)]="relDestinationDropdown" class="form-control form-control-sm" name="Destination" style="float:right">
+                                        <option value="select">--Select--</option>
+                                        <option *ngFor="let destination of relationhipDestinationDropdown"
+                                                [value]="destination.nodeName">{{destination.nodeName}}
+                                        </option>
+                                    </select>
+
+                                    <br><br><br><br>
+                                    <button (click)="addRelationshipToDB()" class="btn btn-primary btn-sm" type="button"><i class="mdi mdi-plus mdi-10px"></i>
+                                        Add
+                                    </button>
+                                    <button (click)="addRelationshipCancel()" class="btn btn-danger btn-sm" style="float:right" type="button"><i class="mdi mdi-close mdi-10px"></i>
+                                        Cancel
+                                    </button>
+
+                                </div>
+                            </form>
+                        </li>
+                    </ul>
+            </article>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <p>SLIIT Web Deisgn, Copyright &copy; 2018</p>
+</footer>
+</body>
+</html>
